@@ -1,15 +1,18 @@
 # Guia de uso de comandos
 
 ## Objetivo
+
 Esta guia explica como usar los comandos definidos en justfile para administrar una base de datos PostgreSQL local con Docker.
 
 ## Requisitos
+
 - Docker instalado
 - Docker Compose disponible
 - just instalado
 - psql en el host (opcional, solo para conexion desde la terminal local)
 
 ## Archivos importantes
+
 - justfile: comandos de automatizacion
 - docker-compose.yml: definicion del servicio PostgreSQL
 - sql/schema.sql: creacion de tablas y llaves
@@ -17,13 +20,15 @@ Esta guia explica como usar los comandos definidos en justfile para administrar 
 - .env.example: variables de entorno de referencia
 
 ## Configuracion inicial
+
 1. Copia variables de ejemplo:
 
 ```bash
 cp .env.example .env
 ```
 
-2. Si lo necesitas, edita .env para cambiar:
+1. Si lo necesitas, edita .env para cambiar:
+
 - DB_NAME
 - DB_USER
 - DB_PASSWORD
@@ -39,6 +44,7 @@ just --list
 ```
 
 ### Levantar la base de datos
+
 Inicia el contenedor de PostgreSQL en segundo plano.
 
 ```bash
@@ -46,6 +52,7 @@ just up
 ```
 
 ### Ver estado
+
 Muestra el estado de los servicios.
 
 ```bash
@@ -53,6 +60,7 @@ just status
 ```
 
 ### Ver logs
+
 Sigue los logs de PostgreSQL.
 
 ```bash
@@ -60,6 +68,7 @@ just logs
 ```
 
 ### Esperar a que la BD este lista
+
 Receta interna para sincronizar antes de ejecutar SQL.
 
 ```bash
@@ -67,6 +76,7 @@ just wait-db
 ```
 
 ### Ejecutar esquema
+
 Crea tablas y restricciones desde sql/schema.sql.
 
 ```bash
@@ -74,6 +84,7 @@ just schema
 ```
 
 ### Cargar data de prueba
+
 Ejecuta sql/load.sql.
 
 ```bash
@@ -81,6 +92,7 @@ just load
 ```
 
 ### Reinicializar todo el dataset
+
 Limpia volumen, levanta el contenedor, crea esquema y carga data.
 
 ```bash
@@ -88,6 +100,7 @@ just reset-data
 ```
 
 ### Ejecutar un script SQL especifico desde el host
+
 El archivo se toma relativo al directorio actual (raíz del proyecto).
 
 ```bash
@@ -96,6 +109,7 @@ just run-sql sql/load.sql
 ```
 
 ### Ejecutar SQL inline
+
 Ejecuta una consulta puntual.
 
 ```bash
@@ -110,6 +124,7 @@ just psql
 ```
 
 ### Conectar desde tu terminal local
+
 Requiere cliente psql instalado en tu host.
 
 ```bash
@@ -129,6 +144,7 @@ just down
 ```
 
 ### Limpiar todo (incluye datos)
+
 Elimina contenedor, red y volumen. Se pierde la informacion cargada.
 
 ```bash
@@ -138,6 +154,7 @@ just clean
 ## Flujo recomendado de trabajo
 
 ### Primera vez o después de cambios profundos
+
 Gracias a la configuración automática, esto levanta la BD, espera a que esté lista y carga el esquema y datos iniciales en un solo paso:
 
 ```bash
@@ -159,6 +176,7 @@ just exec-sql "select * from fuente_soda limit 10;"
 ## Solucion de problemas
 
 ### Error: relation does not exist
+
 Causa: se intento cargar datos antes de crear el esquema.
 
 Solucion:
@@ -169,13 +187,16 @@ just load
 ```
 
 ### Error de conexion al arrancar
+
 Causa: PostgreSQL aun no termina de iniciar.
 
 Solucion:
+
 - Usa recetas que ya esperan disponibilidad (run-sql, schema, load, exec-sql, reset-data).
 - Si ejecutas manualmente, espera unos segundos y reintenta.
 
 ### Puerto ocupado
+
 Si DB_PORT esta en uso, cambia DB_PORT en .env y reinicia:
 
 ```bash
