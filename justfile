@@ -10,16 +10,17 @@ set dotenv-load := true
 default:
     @just --list
 
-# Levanta Postgres en segundo plano
+# Levanta Postgres y espera a que esté listo (usa healthcheck)
 up:
-    docker compose up -d
+    docker compose up -d --wait
 
-# Espera hasta que Postgres acepte conexiones
+# Espera hasta que Postgres acepte conexiones (respaldo para 'up --wait')
 wait-db:
-        until docker compose exec -T postgres sh -c 'pg_isready -U {{DB_USER}} -d {{DB_NAME}} >/dev/null 2>&1 && psql -U {{DB_USER}} -d {{DB_NAME}} -c "select 1" >/dev/null 2>&1'; do \
-            echo "Esperando a PostgreSQL..."; \
-            sleep 1; \
-        done
+    @echo "Verificando disponibilidad de PostgreSQL..."
+    @until docker exec {{DB_CONTAINER}} pg_isready -U {{DB_USER}} -d {{DB_NAME}} >/dev/null 2>&1; do \
+        echo "Esperando a PostgreSQL..."; \
+        sleep 1; \
+    done
 
 # Muestra logs de la base de datos
 logs:
@@ -39,38 +40,36 @@ clean:
 
 # Abre psql dentro del contenedor
 psql:
-    docker compose exec postgres psql -U {{DB_USER}} -d {{DB_NAME}}
+    docker exec -it {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{DB_NAME}}
 
 # Conecta desde tu terminal local (requiere psql instalado en host)
 psql-host:
     PGPASSWORD={{DB_PASSWORD}} psql -h localhost -p {{DB_PORT}} -U {{DB_USER}} -d {{DB_NAME}}
 
-# Ejecuta un script SQL de la carpeta ./sql
-# Uso: just run-sql 001_init.sql
+# Ejecuta un script SQL desde el host (ruta relativa al directorio actual)
+# Uso: just run-sql sql/schema.sql
 run-sql script:
     @just wait-db
-    docker compose exec -T postgres psql -U {{DB_USER}} -d {{DB_NAME}} -f /scripts/{{script}}
+    @docker exec -i {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{DB_NAME}} < {{script}}
 
 # Ejecuta SQL inline
 # Uso: just exec-sql "select now();"
 exec-sql query:
     @just wait-db
-    docker compose exec -T postgres psql -U {{DB_USER}} -d {{DB_NAME}} -c "{{query}}"
+    @docker exec -i {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{DB_NAME}} -c "{{query}}"
 
-# Crea el esquema (tablas y llaves)
+# Crea el esquema manualmente
 schema:
-    @just run-sql schema.sql
+    @just run-sql sql/schema.sql
 
-# Carga los datos de prueba
+# Carga los datos manualmente
 load:
-    @just run-sql load.sql
+    @just run-sql sql/load.sql
 
-# Reinicia todo el dataset de la materia
+# Reinicia todo el dataset (ultra rápido con auto-init en docker-compose)
 reset-data:
     @just clean
     @just up
-    @just schema
-    @just load
 
 # Estado rápido del contenedor
 status:

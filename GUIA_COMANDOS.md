@@ -87,12 +87,12 @@ Limpia volumen, levanta el contenedor, crea esquema y carga data.
 just reset-data
 ```
 
-### Ejecutar un script SQL especifico
-El archivo se toma relativo a la carpeta sql.
+### Ejecutar un script SQL especifico desde el host
+El archivo se toma relativo al directorio actual (raíz del proyecto).
 
 ```bash
-just run-sql schema.sql
-just run-sql load.sql
+just run-sql sql/schema.sql
+just run-sql sql/load.sql
 ```
 
 ### Ejecutar SQL inline
@@ -137,21 +137,20 @@ just clean
 
 ## Flujo recomendado de trabajo
 
-### Primera vez
+### Primera vez o después de cambios profundos
+Gracias a la configuración automática, esto levanta la BD, espera a que esté lista y carga el esquema y datos iniciales en un solo paso:
 
 ```bash
 just up
-just schema
-just load
 ```
 
-### Cuando quieras reiniciar desde cero
+### Cuando quieras reiniciar desde cero (borrar todo y recrear)
 
 ```bash
 just reset-data
 ```
 
-### Consulta rapida
+### Consulta rápida
 
 ```bash
 just exec-sql "select * from fuente_soda limit 10;"
