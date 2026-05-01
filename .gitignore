@@ -3,3 +3,6 @@
 
 # Docker
 .docker/
+
+# Environment variables
+.env
