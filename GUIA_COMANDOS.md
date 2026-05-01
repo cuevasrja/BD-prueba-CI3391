@@ -8,7 +8,7 @@ Esta guia explica como usar los comandos definidos en justfile para administrar 
 
 - Docker instalado
 - Docker Compose disponible
-- just instalado
+- [just instalado](https://github.com/casey/just) para ejecutar recetas. Si no quieres usar just, puedes ejecutar los comandos equivalentes de Docker Compose manualmente, pero just simplifica mucho el proceso.
 - psql en el host (opcional, solo para conexion desde la terminal local)
 
 ## Archivos importantes
