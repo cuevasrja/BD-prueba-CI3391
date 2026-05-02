@@ -71,6 +71,15 @@ reset-data:
     @just clean
     @just up
 
+# Reconstruye el stack desde cero: borra volumen y vuelve a inicializar
+rebuild:
+    @just clean
+    @just up
+
+# Muestra las extensiones instaladas en la base de datos
+extensions:
+    @docker exec -i {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{DB_NAME}} -c "\dx"
+
 # Estado rápido del contenedor
 status:
     docker compose ps
